@@ -18,7 +18,7 @@ class Mixcloud(object):
         r = requests.get(url)
         data = r.json()
         name = data['name']
-        return User(key, name, m=self)
+        return User.from_json(data, m=self)
 
 
 class Artist(object):
@@ -35,15 +35,17 @@ class User(object):
         self.key = key
         self.name = name
 
+    @staticmethod
+    def from_json(data, m=None):
+        return User(data['username'], data['name'], m=m)
+
     def cloudcast(self, key):
         url = '{root}/cloudcast/{user}/{cc}'.format(root=self.m.api_root,
                                                     user=self.key,
                                                     cc=key)
         r = requests.get(url)
         data = r.json()
-        name = data['name']
-        sections = [Section.from_json(s) for s in data['sections']]
-        return Cloudcast(key, name, sections)
+        return Cloudcast.from_json(data)
 
     def cloudcasts(self):
         url = '{root}/{user}/cloudcasts/'.format(root=self.m.api_root,
