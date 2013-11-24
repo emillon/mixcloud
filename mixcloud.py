@@ -13,8 +13,21 @@ class Mixcloud(object):
         name = data['name']
         return Artist(name)
 
+    def user(self, name):
+        url = '{root}/user/{user}'.format(root=self.api_root, user=name)
+        r = requests.get(url)
+        data = r.json()
+        name = data['name']
+        return User(name)
+
 
 class Artist(object):
+
+    def __init__(self, name):
+        self.name = name
+
+
+class User(object):
 
     def __init__(self, name):
         self.name = name
