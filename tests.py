@@ -6,7 +6,18 @@ import unittest
 
 afx = mixcloud.Artist('aphex-twin', 'Aphex Twin')
 spartacus = mixcloud.User('spartacus', 'Spartacus')
-partytime = mixcloud.Cloudcast('party-time', 'Party Time')
+partytime = mixcloud.Cloudcast('party-time', 'Party Time',
+                               [mixcloud.Section(0),
+                                mixcloud.Section(416),
+                                mixcloud.Section(716),
+                                mixcloud.Section(1061),
+                                mixcloud.Section(1500),
+                                mixcloud.Section(1763),
+                                mixcloud.Section(2123),
+                                mixcloud.Section(2442),
+                                mixcloud.Section(2738),
+                                ]
+                               )
 
 
 class TestMixcloud(unittest.TestCase):
@@ -30,15 +41,15 @@ class TestMixcloud(unittest.TestCase):
         url = '{root}/cloudcast/{user}/{key}'.format(root=api_root,
                                                      user=user.key,
                                                      key=cloudcast.key)
-        data = {'name': cloudcast.name}
-        httpretty.register_uri(httpretty.GET, url, body=json.dumps(data))
+        cc_data = {'slug': cloudcast.key,
+                   'name': cloudcast.name,
+                   'sections': [{'start_time': s.start_time}
+                                for s in cloudcast.sections],
+                   }
+        httpretty.register_uri(httpretty.GET, url, body=json.dumps(cc_data))
         #  Register cloudcast list
         url = '{root}/{user}/cloudcasts/'.format(root=api_root, user=user.key)
-        data = {'data': [{'slug': cloudcast.key,
-                          'name': cloudcast.name,
-                          }
-                         ]
-                }
+        data = {'data': [cc_data]}
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(data))
 
     def setUp(self):
@@ -62,6 +73,9 @@ class TestMixcloud(unittest.TestCase):
         resp = self.m.user('spartacus')
         cc = resp.cloudcast('party-time')
         self.assertEqual(cc.name, 'Party Time')
+        self.assertEqual(len(cc.sections), 9)
+        sec = cc.sections[1]
+        self.assertEqual(sec.start_time, 416)
 
     @httpretty.activate
     def testCloudcasts(self):
