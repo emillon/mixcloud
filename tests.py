@@ -27,6 +27,14 @@ class TestMixcloud(unittest.TestCase):
                                                      key=key)
         data = {'name': name}
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(data))
+        #  Register cloudcast list
+        url = '{root}/{user}/cloudcasts/'.format(root=api_root, user=user)
+        data = {'data': [{'slug': key,
+                          'name': name,
+                          }
+                         ]
+                }
+        httpretty.register_uri(httpretty.GET, url, body=json.dumps(data))
 
     @httpretty.activate
     def testArtist(self):
@@ -49,4 +57,15 @@ class TestMixcloud(unittest.TestCase):
         m = mixcloud.Mixcloud()
         sp = m.user('spartacus')
         cc = sp.cloudcast('party-time')
+        self.assertEqual(cc.name, 'Party Time')
+
+    @httpretty.activate
+    def testCloudcasts(self):
+        self._register_cloudcast('spartacus', 'Spartacus',
+                                 'party-time', 'Party Time')
+        m = mixcloud.Mixcloud()
+        sp = m.user('spartacus')
+        ccs = sp.cloudcasts()
+        self.assertEqual(len(ccs), 1)
+        cc = ccs[0]
         self.assertEqual(cc.name, 'Party Time')
