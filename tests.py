@@ -36,26 +36,26 @@ class TestMixcloud(unittest.TestCase):
                 }
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(data))
 
+    def setUp(self):
+        self.m = mixcloud.Mixcloud()
+
     @httpretty.activate
     def testArtist(self):
         self._register_artist('aphex-twin', 'Aphex Twin')
-        m = mixcloud.Mixcloud()
-        afx = m.artist('aphex-twin')
+        afx = self.m.artist('aphex-twin')
         self.assertEqual(afx.name, 'Aphex Twin')
 
     @httpretty.activate
     def testUser(self):
         self._register_user('spartacus', 'Spartacus')
-        m = mixcloud.Mixcloud()
-        sp = m.user('spartacus')
+        sp = self.m.user('spartacus')
         self.assertEqual(sp.name, 'Spartacus')
 
     @httpretty.activate
     def testCloudcast(self):
         self._register_cloudcast('spartacus', 'Spartacus',
                                  'party-time', 'Party Time')
-        m = mixcloud.Mixcloud()
-        sp = m.user('spartacus')
+        sp = self.m.user('spartacus')
         cc = sp.cloudcast('party-time')
         self.assertEqual(cc.name, 'Party Time')
 
@@ -63,8 +63,7 @@ class TestMixcloud(unittest.TestCase):
     def testCloudcasts(self):
         self._register_cloudcast('spartacus', 'Spartacus',
                                  'party-time', 'Party Time')
-        m = mixcloud.Mixcloud()
-        sp = m.user('spartacus')
+        sp = self.m.user('spartacus')
         ccs = sp.cloudcasts()
         self.assertEqual(len(ccs), 1)
         cc = ccs[0]
