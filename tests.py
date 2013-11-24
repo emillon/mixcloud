@@ -125,7 +125,6 @@ class TestMixcloud(unittest.TestCase):
 
         def upload_callback(request, uri, headers):
             data = request.parsed_body
-            # TODO check query string for access token
             self.assertIn('mp3', data)
             name = data['name'][0]
             key = slugify(name)

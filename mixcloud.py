@@ -4,8 +4,9 @@ import requests
 
 class Mixcloud(object):
 
-    def __init__(self, api_root='https://api.mixcloud.com'):
+    def __init__(self, api_root='https://api.mixcloud.com', access_token=None):
         self.api_root = api_root
+        self.access_token = access_token
 
     def artist(self, key):
         url = '{root}/artist/{key}'.format(root=self.api_root, key=key)
@@ -35,7 +36,10 @@ class Mixcloud(object):
             sec_headers['sections-%d-start_time' % num] = sec.start_time
 
         payload.update(sec_headers)
-        r = requests.post(url, data=payload)
+        r = requests.post(url,
+                          data=payload,
+                          params={'access_token': self.access_token},
+                          )
 
 
 class Artist(collections.namedtuple('_Artist', 'key name')):
