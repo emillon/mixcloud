@@ -79,6 +79,15 @@ class TestMixcloud(unittest.TestCase):
         data = {'data': [cc_data]}
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(data))
 
+    def _i_am(self, user):
+        assert httpretty.is_enabled()
+        target_url = 'https://api.mixcloud.com/user/{key}'.format(key=user.key)
+        self._register_user(user)
+        httpretty.register_uri(httpretty.GET,
+                               'https://api.mixcloud.com/me/',
+                               status=302,
+                               location=target_url)
+
     def setUp(self):
         self.m = mixcloud.Mixcloud()
 
@@ -115,3 +124,10 @@ class TestMixcloud(unittest.TestCase):
         self.assertEqual(len(ccs), 1)
         cc = ccs[0]
         self.assertEqual(cc.name, 'Party Time')
+
+    @httpretty.activate
+    def testLogin(self):
+        self._i_am(spartacus)
+        user = self.m.me()
+        self.assertEqual(user.key, spartacus.key)
+        self.assertEqual(user.name, spartacus.name)

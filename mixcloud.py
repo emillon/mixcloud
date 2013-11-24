@@ -15,9 +15,12 @@ class Mixcloud(object):
     def user(self, key):
         url = '{root}/user/{user}'.format(root=self.api_root, user=key)
         r = requests.get(url)
-        data = r.json()
-        name = data['name']
-        return User.from_json(data, m=self)
+        return User.from_json(r.json(), m=self)
+
+    def me(self):
+        url = '{root}/me/'.format(root=self.api_root)
+        r = requests.get(url)
+        return User.from_json(r.json(), m=self)
 
 
 class Artist(collections.namedtuple('_Artist', 'key name')):
