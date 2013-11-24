@@ -6,10 +6,10 @@ import unittest
 
 class TestMixcloud(unittest.TestCase):
 
-    def _register_artist(self, key, name):
+    def _register_artist(self, artist):
         assert httpretty.is_enabled()
-        url = 'https://api.mixcloud.com/artist/{artist}'.format(artist=key)
-        data = {'name': name}
+        url = 'https://api.mixcloud.com/artist/{key}'.format(key=artist.key)
+        data = {'name': artist.name}
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(data))
 
     def _register_user(self, key, name):
@@ -41,9 +41,10 @@ class TestMixcloud(unittest.TestCase):
 
     @httpretty.activate
     def testArtist(self):
-        self._register_artist('aphex-twin', 'Aphex Twin')
-        afx = self.m.artist('aphex-twin')
-        self.assertEqual(afx.name, 'Aphex Twin')
+        afx = mixcloud.Artist('aphex-twin', 'Aphex Twin')
+        self._register_artist(afx)
+        resp = self.m.artist('aphex-twin')
+        self.assertEqual(resp.name, 'Aphex Twin')
 
     @httpretty.activate
     def testUser(self):
