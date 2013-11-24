@@ -54,12 +54,14 @@ class User(object):
         return [Cloudcast.from_json(d) for d in data['data']]
 
 
-class Cloudcast(collections.namedtuple('_Cloudcast', 'key name sections')):
+class Cloudcast(collections.namedtuple('_Cloudcast',
+                                       'key name sections tags')):
 
     @staticmethod
     def from_json(d):
         sections = [Section.from_json(s) for s in d['sections']]
-        return Cloudcast(d['slug'], d['name'], sections)
+        tags = [t['name'] for t in d['tags']]
+        return Cloudcast(d['slug'], d['name'], sections, tags)
 
 
 class Section(collections.namedtuple('_Section', 'start_time track')):

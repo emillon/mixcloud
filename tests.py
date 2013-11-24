@@ -27,7 +27,8 @@ partytime = mixcloud.Cloudcast(
                                                      )
                                      )
                       )
-     for l in csv.reader(pt_data, delimiter='|', quoting=csv.QUOTE_NONE)]
+     for l in csv.reader(pt_data, delimiter='|', quoting=csv.QUOTE_NONE)],
+    ['Funky house', 'Funk', 'Soul'],
 )
 
 
@@ -66,9 +67,11 @@ class TestMixcloud(unittest.TestCase):
                       {'slug': s.track.artist.key,
                        'name': s.track.artist.name,
                        },
-                      }
+                      },
                      }
                     for s in cloudcast.sections],
+                   'tags': [{'name': t}
+                            for t in cloudcast.tags],
                    }
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(cc_data))
         #  Register cloudcast list
@@ -102,6 +105,7 @@ class TestMixcloud(unittest.TestCase):
         self.assertEqual(sec.start_time, 416)
         self.assertEqual(sec.track.name, 'Refresher')
         self.assertEqual(sec.track.artist.name, 'Time of your life')
+        self.assertItemsEqual(cc.tags, ['Funky house', 'Funk', 'Soul'])
 
     @httpretty.activate
     def testCloudcasts(self):
