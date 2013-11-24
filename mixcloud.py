@@ -9,9 +9,7 @@ class Mixcloud(object):
     def artist(self, key):
         url = '{root}/artist/{key}'.format(root=self.api_root, key=key)
         r = requests.get(url)
-        data = r.json()
-        name = data['name']
-        return Artist(key, name)
+        return Artist.from_json(r.json())
 
     def user(self, key):
         url = '{root}/user/{user}'.format(root=self.api_root, user=key)
@@ -26,6 +24,10 @@ class Artist(object):
     def __init__(self, key, name):
         self.key = key
         self.name = name
+
+    @staticmethod
+    def from_json(data):
+        return Artist(data['slug'], data['name'])
 
 
 class User(object):

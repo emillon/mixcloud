@@ -25,7 +25,9 @@ class TestMixcloud(unittest.TestCase):
     def _register_artist(self, artist):
         assert httpretty.is_enabled()
         url = 'https://api.mixcloud.com/artist/{key}'.format(key=artist.key)
-        data = {'name': artist.name}
+        data = {'slug': artist.key,
+                'name': artist.name,
+                }
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(data))
 
     def _register_user(self, user):
