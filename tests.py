@@ -94,16 +94,30 @@ class TestMixcloud(unittest.TestCase):
     def _handle_upload(self):
         assert httpretty.is_enabled()
 
+        def make_section(s):
+            artist_name = s['artist'][0]
+            slug = slugify(artist_name)
+            artist = mixcloud.Artist(slug, artist_name)
+            track = mixcloud.Track(s['song'][0], artist)
+            sec = mixcloud.Section(int(s['start_time'][0]), track)
+            return sec
+
         def parse_headers(data):
             sections = {}
             tags = {}  # TODO
             for k, v in data.iteritems():
                 if k.startswith('sections-'):
                     parts = k.split('-')
-                    secnum = parts[1]
+                    secnum = int(parts[1])
                     what = parts[2]
-                    k[secnum][what] = v
-            return sections, tags
+                    if secnum not in sections:
+                        sections[secnum] = {}
+                    sections[secnum][what] = v
+            seclist = [None] * len(sections)
+            for k, v in sections.iteritems():
+                seclist[k] = v
+            seclist = [make_section(s) for s in seclist]
+            return seclist, tags
 
         def slugify(s):
             s = unidecode.unidecode(s).lower()
@@ -178,3 +192,8 @@ class TestMixcloud(unittest.TestCase):
         me = self.m.me()
         cc = me.cloudcast('party-time')
         self.assertEqual(cc.name, 'Party Time')
+        self.assertEqual(len(cc.sections), 9)
+        sec = cc.sections[3]
+        self.assertEqual(sec.start_time, 1061)
+        self.assertEqual(sec.track.name, 'Definition of House')
+        self.assertEqual(sec.track.artist.name, 'Minimal Funk')

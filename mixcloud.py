@@ -28,6 +28,13 @@ class Mixcloud(object):
         payload = {'mp3': mp3data,
                    'name': cloudcast.name,
                    }
+        sec_headers = {}
+        for num, sec in enumerate(cloudcast.sections):
+            sec_headers['sections-%d-artist' % num] = sec.track.artist.name
+            sec_headers['sections-%d-song' % num] = sec.track.name
+            sec_headers['sections-%d-start_time' % num] = sec.start_time
+
+        payload.update(sec_headers)
         r = requests.post(url, data=payload)
 
 
