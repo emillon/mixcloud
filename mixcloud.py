@@ -42,7 +42,7 @@ class User(object):
         r = requests.get(url)
         data = r.json()
         name = data['name']
-        sections = [Section(d['start_time']) for d in data['sections']]
+        sections = [Section.from_json(s) for s in data['sections']]
         return Cloudcast(key, name, sections)
 
     def cloudcasts(self):
@@ -50,8 +50,7 @@ class User(object):
                                                  user=self.key)
         r = requests.get(url)
         data = r.json()
-        return [Cloudcast(d['slug'], d['name'], d['sections'])
-                for d in data['data']]
+        return [Cloudcast.from_json(d) for d in data['data']]
 
 
 class Cloudcast(object):
@@ -61,8 +60,17 @@ class Cloudcast(object):
         self.name = name
         self.sections = sections
 
+    @staticmethod
+    def from_json(d):
+        sections = [Section.from_json(s) for s in d['sections']]
+        return Cloudcast(d['slug'], d['name'], sections)
+
 
 class Section(object):
 
     def __init__(self, start_time):
         self.start_time = start_time
+
+    @staticmethod
+    def from_json(d):
+        return Section(d['start_time'])
