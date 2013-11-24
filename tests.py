@@ -102,9 +102,15 @@ class TestMixcloud(unittest.TestCase):
             sec = mixcloud.Section(int(s['start_time'][0]), track)
             return sec
 
+        def listify(d):
+            l = [None] * len(d)
+            for k, v in d.iteritems():
+                l[k] = v
+            return l
+
         def parse_headers(data):
             sections = {}
-            tags = {}  # TODO
+            tags = {}
             for k, v in data.iteritems():
                 if k.startswith('sections-'):
                     parts = k.split('-')
@@ -113,11 +119,14 @@ class TestMixcloud(unittest.TestCase):
                     if secnum not in sections:
                         sections[secnum] = {}
                     sections[secnum][what] = v
-            seclist = [None] * len(sections)
-            for k, v in sections.iteritems():
-                seclist[k] = v
-            seclist = [make_section(s) for s in seclist]
-            return seclist, tags
+                if k.startswith('tags-'):
+                    parts = k.split('-')
+                    tagnum = int(parts[1])
+                    tags[tagnum] = v
+
+            seclist = [make_section(s) for s in listify(sections)]
+            taglist = [s[0] for s in listify(tags)]
+            return seclist, taglist
 
         def slugify(s):
             s = unidecode.unidecode(s).lower()
@@ -196,3 +205,4 @@ class TestMixcloud(unittest.TestCase):
         self.assertEqual(sec.start_time, 1061)
         self.assertEqual(sec.track.name, 'Definition of House')
         self.assertEqual(sec.track.artist.name, 'Minimal Funk')
+        self.assertItemsEqual(cc.tags, ['Funky house', 'Funk', 'Soul'])
