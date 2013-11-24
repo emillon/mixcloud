@@ -6,18 +6,19 @@ import unittest
 
 afx = mixcloud.Artist('aphex-twin', 'Aphex Twin')
 spartacus = mixcloud.User('spartacus', 'Spartacus')
-partytime = mixcloud.Cloudcast('party-time', 'Party Time',
-                               [mixcloud.Section(0),
-                                mixcloud.Section(416),
-                                mixcloud.Section(716),
-                                mixcloud.Section(1061),
-                                mixcloud.Section(1500),
-                                mixcloud.Section(1763),
-                                mixcloud.Section(2123),
-                                mixcloud.Section(2442),
-                                mixcloud.Section(2738),
-                                ]
-                               )
+partytime = mixcloud.Cloudcast(
+    'party-time', 'Party Time',
+    [mixcloud.Section(0,    mixcloud.Track("Samurai (12\" Mix)")),
+     mixcloud.Section(416,  mixcloud.Track("Refresher")),
+     mixcloud.Section(716,  mixcloud.Track("My time (feat. Crystal Waters)")),
+     mixcloud.Section(1061, mixcloud.Track("Definition of House")),
+     mixcloud.Section(1500, mixcloud.Track("I dont know")),
+     mixcloud.Section(1763, mixcloud.Track("Thrill Her")),
+     mixcloud.Section(2123, mixcloud.Track("Happy (feat.Charlise)")),
+     mixcloud.Section(2442, mixcloud.Track("Dancin")),
+     mixcloud.Section(2738, mixcloud.Track("All in my head")),
+     ]
+)
 
 
 class TestMixcloud(unittest.TestCase):
@@ -47,7 +48,10 @@ class TestMixcloud(unittest.TestCase):
                                                      key=cloudcast.key)
         cc_data = {'slug': cloudcast.key,
                    'name': cloudcast.name,
-                   'sections': [{'start_time': s.start_time}
+                   'sections': [{'start_time': s.start_time,
+                                 'track': {'name': s.track.name,
+                                           }
+                                 }
                                 for s in cloudcast.sections],
                    }
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(cc_data))
@@ -80,6 +84,7 @@ class TestMixcloud(unittest.TestCase):
         self.assertEqual(len(cc.sections), 9)
         sec = cc.sections[1]
         self.assertEqual(sec.start_time, 416)
+        self.assertEqual(sec.track.name, 'Refresher')
 
     @httpretty.activate
     def testCloudcasts(self):

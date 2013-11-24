@@ -62,8 +62,15 @@ class Cloudcast(collections.namedtuple('_Cloudcast', 'key name sections')):
         return Cloudcast(d['slug'], d['name'], sections)
 
 
-class Section(collections.namedtuple('_Section', 'start_time')):
+class Section(collections.namedtuple('_Section', 'start_time track')):
 
     @staticmethod
     def from_json(d):
-        return Section(d['start_time'])
+        return Section(d['start_time'], Track.from_json(d['track']))
+
+
+class Track(collections.namedtuple('_Track', 'name')):
+
+    @staticmethod
+    def from_json(d):
+        return Track(d['name'])
