@@ -69,8 +69,8 @@ class Section(collections.namedtuple('_Section', 'start_time track')):
         return Section(d['start_time'], Track.from_json(d['track']))
 
 
-class Track(collections.namedtuple('_Track', 'name')):
+class Track(collections.namedtuple('_Track', 'name artist')):
 
     @staticmethod
     def from_json(d):
-        return Track(d['name'])
+        return Track(d['name'], Artist.from_json(d['artist']))

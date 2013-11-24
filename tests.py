@@ -1,3 +1,4 @@
+import csv
 import httpretty
 import json
 import mixcloud
@@ -6,18 +7,27 @@ import unittest
 
 afx = mixcloud.Artist('aphex-twin', 'Aphex Twin')
 spartacus = mixcloud.User('spartacus', 'Spartacus')
+pt_data = """
+   0 | Samurai (12" Mix)              | Jazztronik
+ 416 | Refresher                      | Time of your life
+ 716 | My time (feat. Crystal Waters) | Dutch
+1061 | Definition of House            | Minimal Funk
+1500 | I dont know                    | Mint Royale
+1763 | Thrill Her                     | Michael Jackson
+2123 | Happy (feat.Charlise)          | Elio Isola
+2442 | Dancin                         | Erick Morillo et al
+2738 | All in my head                 | Kosheen
+     """.split('\n')[1:-1]
 partytime = mixcloud.Cloudcast(
     'party-time', 'Party Time',
-    [mixcloud.Section(0,    mixcloud.Track("Samurai (12\" Mix)")),
-     mixcloud.Section(416,  mixcloud.Track("Refresher")),
-     mixcloud.Section(716,  mixcloud.Track("My time (feat. Crystal Waters)")),
-     mixcloud.Section(1061, mixcloud.Track("Definition of House")),
-     mixcloud.Section(1500, mixcloud.Track("I dont know")),
-     mixcloud.Section(1763, mixcloud.Track("Thrill Her")),
-     mixcloud.Section(2123, mixcloud.Track("Happy (feat.Charlise)")),
-     mixcloud.Section(2442, mixcloud.Track("Dancin")),
-     mixcloud.Section(2738, mixcloud.Track("All in my head")),
-     ]
+    [mixcloud.Section(int(l[0]),
+                      mixcloud.Track(l[1].strip(),
+                                     mixcloud.Artist(None,
+                                                     l[2].strip()
+                                                     )
+                                     )
+                      )
+     for l in csv.reader(pt_data, delimiter='|', quoting=csv.QUOTE_NONE)]
 )
 
 
@@ -48,11 +58,17 @@ class TestMixcloud(unittest.TestCase):
                                                      key=cloudcast.key)
         cc_data = {'slug': cloudcast.key,
                    'name': cloudcast.name,
-                   'sections': [{'start_time': s.start_time,
-                                 'track': {'name': s.track.name,
-                                           }
-                                 }
-                                for s in cloudcast.sections],
+                   'sections':
+                   [{'start_time': s.start_time,
+                     'track':
+                     {'name': s.track.name,
+                      'artist':
+                      {'slug': s.track.artist.key,
+                       'name': s.track.artist.name,
+                       },
+                      }
+                     }
+                    for s in cloudcast.sections],
                    }
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(cc_data))
         #  Register cloudcast list
@@ -85,6 +101,7 @@ class TestMixcloud(unittest.TestCase):
         sec = cc.sections[1]
         self.assertEqual(sec.start_time, 416)
         self.assertEqual(sec.track.name, 'Refresher')
+        self.assertEqual(sec.track.artist.name, 'Time of your life')
 
     @httpretty.activate
     def testCloudcasts(self):
