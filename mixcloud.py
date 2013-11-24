@@ -22,6 +22,14 @@ class Mixcloud(object):
         r = requests.get(url)
         return User.from_json(r.json(), m=self)
 
+    def upload(self, cloudcast, mp3file):
+        url = '{root}/upload/'.format(root=self.api_root)
+        mp3data = mp3file.read()
+        payload = {'mp3': mp3data,
+                   'name': cloudcast.name,
+                   }
+        r = requests.post(url, data=payload)
+
 
 class Artist(collections.namedtuple('_Artist', 'key name')):
 

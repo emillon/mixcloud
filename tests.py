@@ -2,6 +2,9 @@ import csv
 import httpretty
 import json
 import mixcloud
+import re
+import StringIO
+import unidecode
 import unittest
 
 
@@ -88,6 +91,40 @@ class TestMixcloud(unittest.TestCase):
                                status=302,
                                location=target_url)
 
+    def _handle_upload(self):
+        assert httpretty.is_enabled()
+
+        def parse_headers(data):
+            sections = {}
+            tags = {}  # TODO
+            for k, v in data.iteritems():
+                if k.startswith('sections-'):
+                    parts = k.split('-')
+                    secnum = parts[1]
+                    what = parts[2]
+                    k[secnum][what] = v
+            return sections, tags
+
+        def slugify(s):
+            s = unidecode.unidecode(s).lower()
+            return re.sub(r'\W+', '-', s)
+
+        def upload_callback(request, uri, headers):
+            data = request.parsed_body
+            # TODO check query string for access token
+            self.assertIn('mp3', data)
+            name = data['name'][0]
+            key = slugify(name)
+            sections, tags = parse_headers(data)
+            cc = mixcloud.Cloudcast(key, name, sections, tags)
+            me = self.m.me()
+            self._register_cloudcast(me, cc)
+            return (200, headers, '{}')
+        httpretty.register_uri(httpretty.POST,
+                               'https://api.mixcloud.com/upload/',
+                               body=upload_callback
+                               )
+
     def setUp(self):
         self.m = mixcloud.Mixcloud()
 
@@ -131,3 +168,13 @@ class TestMixcloud(unittest.TestCase):
         user = self.m.me()
         self.assertEqual(user.key, spartacus.key)
         self.assertEqual(user.name, spartacus.name)
+
+    @httpretty.activate
+    def testUpload(self):
+        self._i_am(spartacus)
+        self._handle_upload()
+        mp3file = StringIO.StringIO('\x00' * 30)
+        self.m.upload(partytime, mp3file)
+        me = self.m.me()
+        cc = me.cloudcast('party-time')
+        self.assertEqual(cc.name, 'Party Time')
