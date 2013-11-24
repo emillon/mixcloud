@@ -1,3 +1,4 @@
+import collections
 import requests
 
 
@@ -19,11 +20,7 @@ class Mixcloud(object):
         return User.from_json(data, m=self)
 
 
-class Artist(object):
-
-    def __init__(self, key, name):
-        self.key = key
-        self.name = name
+class Artist(collections.namedtuple('_Artist', 'key name')):
 
     @staticmethod
     def from_json(data):
@@ -57,12 +54,7 @@ class User(object):
         return [Cloudcast.from_json(d) for d in data['data']]
 
 
-class Cloudcast(object):
-
-    def __init__(self, key, name, sections):
-        self.key = key
-        self.name = name
-        self.sections = sections
+class Cloudcast(collections.namedtuple('_Cloudcast', 'key name sections')):
 
     @staticmethod
     def from_json(d):
@@ -70,10 +62,7 @@ class Cloudcast(object):
         return Cloudcast(d['slug'], d['name'], sections)
 
 
-class Section(object):
-
-    def __init__(self, start_time):
-        self.start_time = start_time
+class Section(collections.namedtuple('_Section', 'start_time')):
 
     @staticmethod
     def from_json(d):
