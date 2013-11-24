@@ -18,7 +18,7 @@ class Mixcloud(object):
         r = requests.get(url)
         data = r.json()
         name = data['name']
-        return User(self, key, name)
+        return User(key, name, m=self)
 
 
 class Artist(object):
@@ -30,7 +30,7 @@ class Artist(object):
 
 class User(object):
 
-    def __init__(self, m, key, name):
+    def __init__(self, key, name, m=None):
         self.m = m
         self.key = key
         self.name = name
