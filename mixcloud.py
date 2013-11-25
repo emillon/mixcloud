@@ -28,6 +28,7 @@ class Mixcloud(object):
         mp3data = mp3file.read()
         payload = {'mp3': mp3data,
                    'name': cloudcast.name,
+                   'percentage_music': 100,
                    }
         for num, sec in enumerate(cloudcast.sections):
             payload['sections-%d-artist' % num] = sec.track.artist.name
