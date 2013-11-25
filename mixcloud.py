@@ -1,5 +1,7 @@
 import collections
+import re
 import requests
+import unidecode
 
 
 class Mixcloud(object):
@@ -106,3 +108,8 @@ class Track(collections.namedtuple('_Track', 'name artist')):
     @staticmethod
     def from_json(d):
         return Track(d['name'], Artist.from_json(d['artist']))
+
+
+def slugify(s):
+    s = unidecode.unidecode(s).lower()
+    return re.sub(r'\W+', '-', s)

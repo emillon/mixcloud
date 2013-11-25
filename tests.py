@@ -2,9 +2,7 @@ import csv
 import httpretty
 import json
 import mixcloud
-import re
 import StringIO
-import unidecode
 import unittest
 
 
@@ -98,7 +96,7 @@ class TestMixcloud(unittest.TestCase):
 
         def make_section(s):
             artist_name = s['artist'][0]
-            slug = slugify(artist_name)
+            slug = mixcloud.slugify(artist_name)
             artist = mixcloud.Artist(slug, artist_name)
             track = mixcloud.Track(s['song'][0], artist)
             sec = mixcloud.Section(int(s['start_time'][0]), track)
@@ -130,15 +128,11 @@ class TestMixcloud(unittest.TestCase):
             taglist = [s[0] for s in listify(tags)]
             return seclist, taglist
 
-        def slugify(s):
-            s = unidecode.unidecode(s).lower()
-            return re.sub(r'\W+', '-', s)
-
         def upload_callback(request, uri, headers):
             data = request.parsed_body
             self.assertIn('mp3', data)
             name = data['name'][0]
-            key = slugify(name)
+            key = mixcloud.slugify(name)
             sections, tags = parse_headers(data)
             description = data['description'][0]
             cc = mixcloud.Cloudcast(key, name, sections, tags, description)
