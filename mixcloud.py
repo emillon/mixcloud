@@ -45,6 +45,7 @@ class Mixcloud(object):
                           data=payload,
                           params={'access_token': self.access_token},
                           )
+        return r
 
 
 class Artist(collections.namedtuple('_Artist', 'key name')):
