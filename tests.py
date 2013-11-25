@@ -96,11 +96,11 @@ class TestMixcloud(unittest.TestCase):
         assert httpretty.is_enabled()
 
         def make_section(s):
-            artist_name = s['artist'][0]
+            artist_name = s['artist']
             slug = mixcloud.slugify(artist_name)
             artist = mixcloud.Artist(slug, artist_name)
-            track = mixcloud.Track(s['song'][0], artist)
-            sec = mixcloud.Section(int(s['start_time'][0]), track)
+            track = mixcloud.Track(s['song'], artist)
+            sec = mixcloud.Section(int(s['start_time']), track)
             return sec
 
         def listify(d):
@@ -126,16 +126,36 @@ class TestMixcloud(unittest.TestCase):
                     tags[tagnum] = v
 
             seclist = [make_section(s) for s in listify(sections)]
-            taglist = [s[0] for s in listify(tags)]
+            taglist = listify(tags)
             return seclist, taglist
 
+        def parse_multipart(d):
+            lines = d.split('\n')
+            k = None
+            v = None
+            res = {}
+            for l in lines:
+                l = l.strip()
+                if l.startswith('Content-Disposition'):
+                    parts = l.split('"')
+                    k = parts[1]
+                elif l.startswith('--'):
+                    pass
+                elif l == '':
+                    pass
+                else:
+                    v = l
+                    if k is not None and v is not None:
+                        res[k] = v
+            return res
+
         def upload_callback(request, uri, headers):
-            data = request.parsed_body
+            data = parse_multipart(request.body)
             self.assertIn('mp3', data)
-            name = data['name'][0]
+            name = data['name']
             key = mixcloud.slugify(name)
             sections, tags = parse_headers(data)
-            description = data['description'][0]
+            description = data['description']
             cc = mixcloud.Cloudcast(key, name, sections, tags, description)
             me = self.m.me()
             self._register_cloudcast(me, cc)

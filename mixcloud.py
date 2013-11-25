@@ -27,9 +27,7 @@ class Mixcloud(object):
 
     def upload(self, cloudcast, mp3file):
         url = '{root}/upload/'.format(root=self.api_root)
-        mp3data = mp3file.read()
-        payload = {'mp3': mp3data,
-                   'name': cloudcast.name,
+        payload = {'name': cloudcast.name,
                    'percentage_music': 100,
                    'description': cloudcast.description(),
                    }
@@ -44,6 +42,7 @@ class Mixcloud(object):
         r = requests.post(url,
                           data=payload,
                           params={'access_token': self.access_token},
+                          files={'mp3': mp3file},
                           )
         return r
 
