@@ -63,9 +63,9 @@ class User(object):
         return User(data['username'], data['name'], m=m)
 
     def cloudcast(self, key):
-        url = '{root}/cloudcast/{user}/{cc}'.format(root=self.m.api_root,
-                                                    user=self.key,
-                                                    cc=key)
+        url = '{root}/{user}/{cc}'.format(root=self.m.api_root,
+                                          user=self.key,
+                                          cc=key)
         r = requests.get(url)
         data = r.json()
         return Cloudcast.from_json(data)

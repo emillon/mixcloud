@@ -57,9 +57,9 @@ class TestMixcloud(unittest.TestCase):
         assert httpretty.is_enabled()
         self._register_user(user)
         api_root = 'https://api.mixcloud.com'
-        url = '{root}/cloudcast/{user}/{key}'.format(root=api_root,
-                                                     user=user.key,
-                                                     key=cloudcast.key)
+        url = '{root}/{user}/{key}'.format(root=api_root,
+                                           user=user.key,
+                                           key=cloudcast.key)
         cc_data = {'slug': cloudcast.key,
                    'name': cloudcast.name,
                    'sections':
