@@ -71,15 +71,16 @@ class TestMixcloud(unittest.TestCase):
                        },
                       },
                      }
-                    for s in cloudcast.sections],
+                    for s in cloudcast.sections()],
                    'tags': [{'name': t}
                             for t in cloudcast.tags],
-                   'description': cloudcast.description,
+                   'description': cloudcast.description(),
                    }
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(cc_data))
         #  Register cloudcast list
         url = '{root}/{user}/cloudcasts/'.format(root=api_root, user=user.key)
-        data = {'data': [cc_data]}
+        cc_data_filtered = {k: cc_data[k] for k in ['tags', 'name', 'slug']}
+        data = {'data': [cc_data_filtered]}
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(data))
 
     def _i_am(self, user):
@@ -165,13 +166,14 @@ class TestMixcloud(unittest.TestCase):
         resp = self.m.user('spartacus')
         cc = resp.cloudcast('party-time')
         self.assertEqual(cc.name, 'Party Time')
-        self.assertEqual(len(cc.sections), 9)
-        sec = cc.sections[1]
+        secs = cc.sections()
+        self.assertEqual(len(secs), 9)
+        sec = secs[1]
         self.assertEqual(sec.start_time, 416)
         self.assertEqual(sec.track.name, 'Refresher')
         self.assertEqual(sec.track.artist.name, 'Time of your life')
         self.assertItemsEqual(cc.tags, ['Funky house', 'Funk', 'Soul'])
-        self.assertEqual(cc.description, 'Bla bla')
+        self.assertEqual(cc.description(), 'Bla bla')
 
     @httpretty.activate
     def testCloudcasts(self):
@@ -199,10 +201,11 @@ class TestMixcloud(unittest.TestCase):
         me = self.m.me()
         cc = me.cloudcast('party-time')
         self.assertEqual(cc.name, 'Party Time')
-        self.assertEqual(len(cc.sections), 9)
-        sec = cc.sections[3]
+        secs = cc.sections()
+        self.assertEqual(len(secs), 9)
+        sec = secs[3]
         self.assertEqual(sec.start_time, 1061)
         self.assertEqual(sec.track.name, 'Definition of House')
         self.assertEqual(sec.track.artist.name, 'Minimal Funk')
         self.assertItemsEqual(cc.tags, ['Funky house', 'Funk', 'Soul'])
-        self.assertEqual(cc.description, 'Bla bla')
+        self.assertEqual(cc.description(), 'Bla bla')

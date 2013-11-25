@@ -31,9 +31,9 @@ class Mixcloud(object):
         payload = {'mp3': mp3data,
                    'name': cloudcast.name,
                    'percentage_music': 100,
-                   'description': cloudcast.description,
+                   'description': cloudcast.description(),
                    }
-        for num, sec in enumerate(cloudcast.sections):
+        for num, sec in enumerate(cloudcast.sections()):
             payload['sections-%d-artist' % num] = sec.track.artist.name
             payload['sections-%d-song' % num] = sec.track.name
             payload['sections-%d-start_time' % num] = sec.start_time
@@ -82,19 +82,46 @@ class User(object):
         return [Cloudcast.from_json(d) for d in data['data']]
 
 
-class Cloudcast(collections.namedtuple('_Cloudcast',
-                                       'key name sections tags description')):
+class Cloudcast(object):
+
+    def __init__(self, key, name, sections, tags, description):
+        self.key = key
+        self.name = name
+        self.tags = tags
+        self._description = description
+        self._sections = sections
 
     @staticmethod
     def from_json(d):
-        sections = [Section.from_json(s) for s in d['sections']]
+        if 'sections' in d:
+            sections = [Section.from_json(s) for s in d['sections']]
+        else:
+            sections = None
+        desc = d.get('description')
         tags = [t['name'] for t in d['tags']]
         return Cloudcast(d['slug'],
                          d['name'],
                          sections,
                          tags,
-                         d['description'],
+                         desc,
                          )
+
+    def sections(self):
+        """
+        Depending on the data available when the instance was created,
+        it may be necessary to fetch data.
+        """
+        if self._sections is None:
+            self._sections = self._get_sections()
+        return self._sections
+
+    def description(self):
+        """
+        May hit server. See Cloudcast.sections
+        """
+        if self._description is None:
+            self._description = self._get_description()
+        return self._description
 
 
 class Section(collections.namedtuple('_Section', 'start_time track')):
