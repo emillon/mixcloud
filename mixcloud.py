@@ -16,7 +16,7 @@ class Mixcloud(object):
         return Artist.from_json(r.json())
 
     def user(self, key):
-        url = '{root}/user/{user}'.format(root=self.api_root, user=key)
+        url = '{root}/{user}'.format(root=self.api_root, user=key)
         r = requests.get(url)
         return User.from_json(r.json(), m=self)
 

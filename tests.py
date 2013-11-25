@@ -46,7 +46,7 @@ class TestMixcloud(unittest.TestCase):
 
     def _register_user(self, user):
         assert httpretty.is_enabled()
-        url = 'https://api.mixcloud.com/user/{key}'.format(key=user.key)
+        url = 'https://api.mixcloud.com/{key}'.format(key=user.key)
         data = {'username': user.key,
                 'name': user.name,
                 }
@@ -84,7 +84,7 @@ class TestMixcloud(unittest.TestCase):
 
     def _i_am(self, user):
         assert httpretty.is_enabled()
-        target_url = 'https://api.mixcloud.com/user/{key}'.format(key=user.key)
+        target_url = 'https://api.mixcloud.com/{key}'.format(key=user.key)
         self._register_user(user)
         httpretty.register_uri(httpretty.GET,
                                'https://api.mixcloud.com/me/',
