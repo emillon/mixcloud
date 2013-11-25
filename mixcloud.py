@@ -29,6 +29,7 @@ class Mixcloud(object):
         payload = {'mp3': mp3data,
                    'name': cloudcast.name,
                    'percentage_music': 100,
+                   'description': cloudcast.description,
                    }
         for num, sec in enumerate(cloudcast.sections):
             payload['sections-%d-artist' % num] = sec.track.artist.name
@@ -79,13 +80,18 @@ class User(object):
 
 
 class Cloudcast(collections.namedtuple('_Cloudcast',
-                                       'key name sections tags')):
+                                       'key name sections tags description')):
 
     @staticmethod
     def from_json(d):
         sections = [Section.from_json(s) for s in d['sections']]
         tags = [t['name'] for t in d['tags']]
-        return Cloudcast(d['slug'], d['name'], sections, tags)
+        return Cloudcast(d['slug'],
+                         d['name'],
+                         sections,
+                         tags,
+                         d['description'],
+                         )
 
 
 class Section(collections.namedtuple('_Section', 'start_time track')):
