@@ -138,5 +138,7 @@ class Track(collections.namedtuple('_Track', 'name artist')):
 
 
 def slugify(s):
+    if type(s) == str:
+        s = unicode(s)
     s = unidecode.unidecode(s).lower()
     return re.sub(r'\W+', '-', s)
