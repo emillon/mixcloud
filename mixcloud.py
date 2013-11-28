@@ -83,12 +83,13 @@ class User(object):
 
 class Cloudcast(object):
 
-    def __init__(self, key, name, sections, tags, description):
+    def __init__(self, key, name, sections, tags, description, user):
         self.key = key
         self.name = name
         self.tags = tags
         self._description = description
         self._sections = sections
+        self.user = user
 
     @staticmethod
     def from_json(d):
@@ -98,11 +99,13 @@ class Cloudcast(object):
             sections = None
         desc = d.get('description')
         tags = [t['name'] for t in d['tags']]
+        user = User.from_json(d['user'])
         return Cloudcast(d['slug'],
                          d['name'],
                          sections,
                          tags,
                          desc,
+                         user,
                          )
 
     def sections(self):
