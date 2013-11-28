@@ -245,4 +245,11 @@ class TestMixcloud(unittest.TestCase):
         cc = ccs[0]
         secs = cc.sections()
         self.assertEqual(secs[7].track.name, 'Dancin')
+
+    @httpretty.activate
+    def testCloudcastsDescription(self):
+        self._register_cloudcast(spartacus, partytime)
+        u = self.m.user('spartacus')
+        ccs = u.cloudcasts()
+        cc = ccs[0]
         self.assertEqual(cc.description(), 'Bla bla')
