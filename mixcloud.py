@@ -117,6 +117,7 @@ class Cloudcast(object):
         r = requests.get(url)
         d = r.json()
         self._sections = Section.list_from_json(d['sections'])
+        self._description = d['description']
 
     def sections(self):
         """
@@ -132,7 +133,7 @@ class Cloudcast(object):
         May hit server. See Cloudcast.sections
         """
         if self._description is None:
-            self._description = self._get_description()
+            self._load()
         return self._description
 
 

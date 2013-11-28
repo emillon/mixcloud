@@ -245,3 +245,4 @@ class TestMixcloud(unittest.TestCase):
         cc = ccs[0]
         secs = cc.sections()
         self.assertEqual(secs[7].track.name, 'Dancin')
+        self.assertEqual(cc.description(), 'Bla bla')
