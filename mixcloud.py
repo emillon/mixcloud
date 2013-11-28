@@ -78,23 +78,24 @@ class User(object):
                                                  user=self.key)
         r = requests.get(url)
         data = r.json()
-        return [Cloudcast.from_json(d) for d in data['data']]
+        return [Cloudcast.from_json(d, m=self.m) for d in data['data']]
 
 
 class Cloudcast(object):
 
-    def __init__(self, key, name, sections, tags, description, user):
+    def __init__(self, key, name, sections, tags, description, user, m=None):
         self.key = key
         self.name = name
         self.tags = tags
         self._description = description
         self._sections = sections
         self.user = user
+        self.m = m
 
     @staticmethod
-    def from_json(d):
+    def from_json(d, m=None):
         if 'sections' in d:
-            sections = [Section.from_json(s) for s in d['sections']]
+            sections = Section.list_from_json(d['sections'])
         else:
             sections = None
         desc = d.get('description')
@@ -106,7 +107,16 @@ class Cloudcast(object):
                          tags,
                          desc,
                          user,
+                         m=m,
                          )
+
+    def _load(self):
+        url = '{root}/{user}/{cc}'.format(root=self.m.api_root,
+                                          user=self.user.key,
+                                          cc=self.key)
+        r = requests.get(url)
+        d = r.json()
+        self._sections = Section.list_from_json(d['sections'])
 
     def sections(self):
         """
@@ -114,7 +124,7 @@ class Cloudcast(object):
         it may be necessary to fetch data.
         """
         if self._sections is None:
-            self._sections = self._get_sections()
+            self._load()
         return self._sections
 
     def description(self):
@@ -131,6 +141,10 @@ class Section(collections.namedtuple('_Section', 'start_time track')):
     @staticmethod
     def from_json(d):
         return Section(d['start_time'], Track.from_json(d['track']))
+
+    @staticmethod
+    def list_from_json(d):
+        return [Section.from_json(s) for s in d]
 
 
 class Track(collections.namedtuple('_Track', 'name artist')):
