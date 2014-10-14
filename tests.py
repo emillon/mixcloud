@@ -135,10 +135,15 @@ class TestMixcloud(unittest.TestCase):
             query_string = urlparse.urlparse(uri).query
             query_params = urlparse.parse_qs(query_string)
             limit = None
+            offset = None
             if 'limit' in query_params:
                 limit = int(query_params['limit'][-1])
+            if 'offset' in query_params:
+                offset = int(query_params['offset'][-1])
 
             data = [make_cc_data(cc) for cc in cloudcasts]
+            if offset is not None:
+                data = data[offset:]
             if limit is not None:
                 data = data[:limit]
             body = json.dumps({'data': data})
@@ -321,3 +326,6 @@ class TestMixcloud(unittest.TestCase):
         ccs = u.cloudcasts(limit=1)
         self.assertEqual(len(ccs), 1)
         self.assertEqual(ccs[0].key, 'party-time')
+        ccs = u.cloudcasts(offset=1)
+        self.assertEqual(len(ccs), 1)
+        self.assertEqual(ccs[0].key, 'lambiance')
