@@ -1,3 +1,4 @@
+import datetime
 import httpretty
 import json
 import urlparse
@@ -60,6 +61,7 @@ class MockServer:
                    'user': {'username': user.key,
                             'name': user.name,
                             },
+                   'created_time': cloudcast.created_time.isoformat(),
                    }
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(cc_data))
         return cc_data
@@ -70,7 +72,7 @@ class MockServer:
                                                  user=user.key)
 
         def make_cc_data(cc):
-            keys_ok = ['tags', 'name', 'slug', 'user']
+            keys_ok = ['tags', 'name', 'slug', 'user', 'created_time']
             return {k: cc[k] for k in keys_ok}
 
         def cloudcast_list(method, uri, headers):

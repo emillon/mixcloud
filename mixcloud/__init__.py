@@ -1,4 +1,5 @@
 import collections
+import dateutil.parser
 import re
 import requests
 import unidecode
@@ -88,13 +89,15 @@ class User(object):
 
 class Cloudcast(object):
 
-    def __init__(self, key, name, sections, tags, description, user, m=None):
+    def __init__(self, key, name, sections, tags,
+                 description, user, created_time, m=None):
         self.key = key
         self.name = name
         self.tags = tags
         self._description = description
         self._sections = sections
         self.user = user
+        self.created_time = created_time
         self.m = m
 
     @staticmethod
@@ -106,12 +109,14 @@ class Cloudcast(object):
         desc = d.get('description')
         tags = [t['name'] for t in d['tags']]
         user = User.from_json(d['user'])
+        created_time = dateutil.parser.parse(d['created_time'])
         return Cloudcast(d['slug'],
                          d['name'],
                          sections,
                          tags,
                          desc,
                          user,
+                         created_time,
                          m=m,
                          )
 

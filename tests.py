@@ -1,4 +1,6 @@
 import csv
+import datetime
+import dateutil.tz
 import httpretty
 import json
 import mixcloud
@@ -96,7 +98,8 @@ partytime = mixcloud.Cloudcast(
     """),
     ['Funky house', 'Funk', 'Soul'],
     'Bla bla',
-    spartacus
+    spartacus,
+    datetime.datetime(2009, 8, 2, 16, 55, 1, tzinfo=dateutil.tz.tzutc()),
 )
 lambiance = mixcloud.Cloudcast(
     'lambiance', "L'ambiance",
@@ -117,7 +120,8 @@ lambiance = mixcloud.Cloudcast(
     """),
     ['Idm', 'Originals', 'Ambient'],
     'Bla bla bla',
-    spartacus
+    spartacus,
+    datetime.datetime(2010, 3, 11, 21, 53, 8, tzinfo=dateutil.tz.tzutc()),
 )
 
 
@@ -183,7 +187,9 @@ class TestMixcloud(unittest.TestCase):
             sections, tags = parse_headers(data)
             description = data['description']
             me = self.m.me()
-            cc = mixcloud.Cloudcast(key, name, sections, tags, description, me)
+            created_time = datetime.datetime.now()
+            cc = mixcloud.Cloudcast(key, name, sections, tags,
+                                    description, me, created_time)
             self.mc.register_cloudcast(me, cc)
             return (200, headers, '{}')
 
