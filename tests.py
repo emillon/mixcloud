@@ -125,21 +125,23 @@ class TestMixcloud(unittest.TestCase):
 
     def setUp(self):
         self.m = mixcloud.Mixcloud()
+        httpretty.reset()
+        httpretty.enable()
         self.mc = MockServer()
 
-    @httpretty.activate
+    def tearDown(self):
+        httpretty.disable()
+
     def testArtist(self):
         self.mc.register_artist(afx)
         resp = self.m.artist('aphex-twin')
         self.assertEqual(resp.name, 'Aphex Twin')
 
-    @httpretty.activate
     def testUser(self):
         self.mc.register_user(spartacus)
         resp = self.m.user('spartacus')
         self.assertEqual(resp.name, 'Spartacus')
 
-    @httpretty.activate
     def testCloudcast(self):
         self.mc.register_cloudcast(spartacus, partytime)
         resp = self.m.user('spartacus')
@@ -156,7 +158,6 @@ class TestMixcloud(unittest.TestCase):
         self.assertEqual(cc.user.key, 'spartacus')
         self.assertEqual(cc.user.name, 'Spartacus')
 
-    @httpretty.activate
     def testCloudcasts(self):
         self.mc.register_cloudcast(spartacus, partytime)
         resp = self.m.user('spartacus')
@@ -165,14 +166,12 @@ class TestMixcloud(unittest.TestCase):
         cc = ccs[0]
         self.assertEqual(cc.name, 'Party Time')
 
-    @httpretty.activate
     def testLogin(self):
         self.mc.i_am(spartacus)
         user = self.m.me()
         self.assertEqual(user.key, spartacus.key)
         self.assertEqual(user.name, spartacus.name)
 
-    @httpretty.activate
     def testUpload(self):
         self.mc.i_am(spartacus)
 
@@ -204,7 +203,6 @@ class TestMixcloud(unittest.TestCase):
         self.assertItemsEqual(cc.tags, ['Funky house', 'Funk', 'Soul'])
         self.assertEqual(cc.description(), 'Bla bla')
 
-    @httpretty.activate
     def testCloudcastsSection(self):
         self.mc.register_cloudcast(spartacus, partytime)
         u = self.m.user('spartacus')
@@ -213,7 +211,6 @@ class TestMixcloud(unittest.TestCase):
         secs = cc.sections()
         self.assertEqual(secs[7].track.name, 'Dancin')
 
-    @httpretty.activate
     def testCloudcastsDescription(self):
         self.mc.register_cloudcast(spartacus, partytime)
         u = self.m.user('spartacus')
@@ -221,7 +218,6 @@ class TestMixcloud(unittest.TestCase):
         cc = ccs[0]
         self.assertEqual(cc.description(), 'Bla bla')
 
-    @httpretty.activate
     def testLimit(self):
         self.mc.register_cloudcasts(spartacus, [partytime, lambiance])
         u = self.m.user('spartacus')
