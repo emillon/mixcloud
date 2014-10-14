@@ -1,2 +1,3 @@
+dateutil
 requests
 unidecode
