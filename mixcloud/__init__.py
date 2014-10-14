@@ -73,10 +73,13 @@ class User(object):
         data = r.json()
         return Cloudcast.from_json(data)
 
-    def cloudcasts(self):
+    def cloudcasts(self, limit=None):
         url = '{root}/{user}/cloudcasts/'.format(root=self.m.api_root,
                                                  user=self.key)
-        r = requests.get(url)
+        params = {}
+        if limit is not None:
+            params['limit'] = limit
+        r = requests.get(url, params=params)
         data = r.json()
         return [Cloudcast.from_json(d, m=self.m) for d in data['data']]
 

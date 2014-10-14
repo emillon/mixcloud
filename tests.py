@@ -131,8 +131,20 @@ class TestMixcloud(unittest.TestCase):
             keys_ok = ['tags', 'name', 'slug', 'user']
             return {k: cc[k] for k in keys_ok}
 
-        data = {'data': [make_cc_data(cc) for cc in cloudcasts]}
-        httpretty.register_uri(httpretty.GET, url, body=json.dumps(data))
+        def cloudcast_list(method, uri, headers):
+            query_string = urlparse.urlparse(uri).query
+            query_params = urlparse.parse_qs(query_string)
+            limit = None
+            if 'limit' in query_params:
+                limit = int(query_params['limit'][-1])
+
+            data = [make_cc_data(cc) for cc in cloudcasts]
+            if limit is not None:
+                data = data[:limit]
+            body = json.dumps({'data': data})
+            return (200, headers, body)
+
+        httpretty.register_uri(httpretty.GET, url, body=cloudcast_list)
 
     def _i_am(self, user):
         assert httpretty.is_enabled()
@@ -306,3 +318,6 @@ class TestMixcloud(unittest.TestCase):
         u = self.m.user('spartacus')
         ccs = u.cloudcasts()
         self.assertEqual(len(ccs), 2)
+        ccs = u.cloudcasts(limit=1)
+        self.assertEqual(len(ccs), 1)
+        self.assertEqual(ccs[0].key, 'party-time')
