@@ -4,33 +4,61 @@ import json
 import mixcloud
 import StringIO
 import unittest
+import urlparse
+
+
+def parse_tracklist(s):
+    s = s.split('\n')[1:-1]
+    reader = csv.reader(s, delimiter='|', quoting=csv.QUOTE_NONE)
+    t = [mixcloud.Section(int(l[0]),
+                          mixcloud.Track(l[1].strip(),
+                                         mixcloud.Artist(None,
+                                                         l[2].strip()
+                                                         )
+                                         )
+                          )
+         for l in reader]
+    return t
 
 
 afx = mixcloud.Artist('aphex-twin', 'Aphex Twin')
 spartacus = mixcloud.User('spartacus', 'Spartacus')
-pt_data = """
-   0 | Samurai (12" Mix)              | Jazztronik
- 416 | Refresher                      | Time of your life
- 716 | My time (feat. Crystal Waters) | Dutch
-1061 | Definition of House            | Minimal Funk
-1500 | I dont know                    | Mint Royale
-1763 | Thrill Her                     | Michael Jackson
-2123 | Happy (feat.Charlise)          | Elio Isola
-2442 | Dancin                         | Erick Morillo et al
-2738 | All in my head                 | Kosheen
-     """.split('\n')[1:-1]
 partytime = mixcloud.Cloudcast(
     'party-time', 'Party Time',
-    [mixcloud.Section(int(l[0]),
-                      mixcloud.Track(l[1].strip(),
-                                     mixcloud.Artist(None,
-                                                     l[2].strip()
-                                                     )
-                                     )
-                      )
-     for l in csv.reader(pt_data, delimiter='|', quoting=csv.QUOTE_NONE)],
+    parse_tracklist("""
+       0 | Samurai (12" Mix)              | Jazztronik
+     416 | Refresher                      | Time of your life
+     716 | My time (feat. Crystal Waters) | Dutch
+    1061 | Definition of House            | Minimal Funk
+    1500 | I dont know                    | Mint Royale
+    1763 | Thrill Her                     | Michael Jackson
+    2123 | Happy (feat.Charlise)          | Elio Isola
+    2442 | Dancin                         | Erick Morillo et al
+    2738 | All in my head                 | Kosheen
+    """),
     ['Funky house', 'Funk', 'Soul'],
     'Bla bla',
+    spartacus
+)
+lambiance = mixcloud.Cloudcast(
+    'lambiance', "L'ambiance",
+    parse_tracklist("""
+     10 | As Serious As Your Life                     | Four Tet
+     20 | Dynamic Symmetry                            | BT
+     30 | Vessel                                      | Jon Hopkins
+     40 | Vordhosbn                                   | Aphex Twin
+     50 | Colour Eye                                  | Jon Hopkins
+     60 | Flite                                       | The Cinematic Orchestra
+     70 | Altibzz                                     | Autechre
+     80 | Untitled [SAW2 CD1 Track1] (Four Tet remix) | Aphex Twin
+     90 | Angelica                                    | Lamb
+    100 | Quixotic                                    | Spartacus
+    110 | Monday - Paracetamol                        | Ulrich Schnauss
+    120 | Aquarius                                    | Boards of Canada
+    130 | Channel 1 Suite                             | The Cinematic Orchestra
+    """),
+    ['Idm', 'Originals', 'Ambient'],
+    'Bla bla bla',
     spartacus
 )
 
@@ -53,7 +81,7 @@ class TestMixcloud(unittest.TestCase):
                 }
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(data))
 
-    def _register_cloudcast(self, user, cloudcast):
+    def _register_cloudcast_only(self, user, cloudcast):
         assert httpretty.is_enabled()
         self._register_user(user)
         api_root = 'https://api.mixcloud.com'
@@ -81,11 +109,29 @@ class TestMixcloud(unittest.TestCase):
                             },
                    }
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(cc_data))
-        #  Register cloudcast list
+        return cc_data
+
+    def _register_cloudcast(self, user, cloudcast):
+        self._register_cloudcasts(user, [cloudcast])
+
+    def _register_cloudcasts(self, user, cloudcasts):
+        assert httpretty.is_enabled()
+        cc_data_list = []
+        for cloudcast in cloudcasts:
+            cc_data = self._register_cloudcast_only(user, cloudcast)
+            cc_data_list.append(cc_data)
+        self._register_cloudcast_list(user, cc_data_list)
+
+    def _register_cloudcast_list(self, user, cloudcasts):
+        assert httpretty.is_enabled()
+        api_root = 'https://api.mixcloud.com'
         url = '{root}/{user}/cloudcasts/'.format(root=api_root, user=user.key)
-        keys_ok = ['tags', 'name', 'slug', 'user']
-        cc_data_filtered = {k: cc_data[k] for k in keys_ok}
-        data = {'data': [cc_data_filtered]}
+
+        def make_cc_data(cc):
+            keys_ok = ['tags', 'name', 'slug', 'user']
+            return {k: cc[k] for k in keys_ok}
+
+        data = {'data': [make_cc_data(cc) for cc in cloudcasts]}
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(data))
 
     def _i_am(self, user):
@@ -253,3 +299,10 @@ class TestMixcloud(unittest.TestCase):
         ccs = u.cloudcasts()
         cc = ccs[0]
         self.assertEqual(cc.description(), 'Bla bla')
+
+    @httpretty.activate
+    def testLimit(self):
+        self._register_cloudcasts(spartacus, [partytime, lambiance])
+        u = self.m.user('spartacus')
+        ccs = u.cloudcasts()
+        self.assertEqual(len(ccs), 2)
