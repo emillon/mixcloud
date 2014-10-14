@@ -5,18 +5,23 @@ import urlparse
 
 class MockServer:
 
+    def __init__(self, api_root=None):
+        if api_root is None:
+            api_root = 'https://api.mixcloud.com'
+        self.api_root = api_root
+
     def i_am(self, user):
         assert httpretty.is_enabled()
-        target_url = 'https://api.mixcloud.com/{key}'.format(key=user.key)
+        target_url = '{root}/{key}'.format(root=self.api_root, key=user.key)
         self.register_user(user)
         httpretty.register_uri(httpretty.GET,
-                               'https://api.mixcloud.com/me/',
+                               '{root}/me/'.format(root=self.api_root),
                                status=302,
                                location=target_url)
 
     def register_artist(self, artist):
         assert httpretty.is_enabled()
-        url = 'https://api.mixcloud.com/artist/{key}'.format(key=artist.key)
+        url = '{root}/artist/{key}'.format(root=self.api_root, key=artist.key)
         data = {'slug': artist.key,
                 'name': artist.name,
                 }
@@ -24,7 +29,7 @@ class MockServer:
 
     def register_user(self, user):
         assert httpretty.is_enabled()
-        url = 'https://api.mixcloud.com/{key}'.format(key=user.key)
+        url = '{root}/{key}'.format(root=self.api_root, key=user.key)
         data = {'username': user.key,
                 'name': user.name,
                 }
@@ -33,8 +38,7 @@ class MockServer:
     def _register_cloudcast_only(self, user, cloudcast):
         assert httpretty.is_enabled()
         self.register_user(user)
-        api_root = 'https://api.mixcloud.com'
-        url = '{root}/{user}/{key}'.format(root=api_root,
+        url = '{root}/{user}/{key}'.format(root=self.api_root,
                                            user=user.key,
                                            key=cloudcast.key)
         cc_data = {'slug': cloudcast.key,
@@ -62,8 +66,8 @@ class MockServer:
 
     def _register_cloudcast_list(self, user, cloudcasts):
         assert httpretty.is_enabled()
-        api_root = 'https://api.mixcloud.com'
-        url = '{root}/{user}/cloudcasts/'.format(root=api_root, user=user.key)
+        url = '{root}/{user}/cloudcasts/'.format(root=self.api_root,
+                                                 user=user.key)
 
         def make_cc_data(cc):
             keys_ok = ['tags', 'name', 'slug', 'user']
@@ -103,6 +107,6 @@ class MockServer:
     def handle_upload(self, upload_callback):
         assert httpretty.is_enabled()
         httpretty.register_uri(httpretty.POST,
-                               'https://api.mixcloud.com/upload/',
+                               '{root}/upload/'.format(root=self.api_root),
                                body=upload_callback
                                )
