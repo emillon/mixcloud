@@ -1,4 +1,2 @@
-httpretty
-nose
 requests
 unidecode
