@@ -1,6 +1,7 @@
 import datetime
 import httpretty
 import json
+import mixcloud
 import urlparse
 
 
@@ -112,3 +113,75 @@ class MockServer:
                                '{root}/upload/'.format(root=self.api_root),
                                body=upload_callback
                                )
+
+    def mock_upload(self, user):
+        def mock_upload(request, uri, headers):
+            data = parse_multipart(request.body)
+            name = data['name']
+            key = mixcloud.slugify(name)
+            sections, tags = parse_headers(data)
+            description = data['description']
+            created_time = datetime.datetime.now()
+            cc = mixcloud.Cloudcast(key, name, sections, tags,
+                                    description, user, created_time)
+            self.register_cloudcast(user, cc)
+            return (200, headers, '{}')
+        self.handle_upload(mock_upload)
+
+
+def parse_multipart(d):
+    lines = d.split('\n')
+    k = None
+    v = None
+    res = {}
+    for l in lines:
+        l = l.strip()
+        if l.startswith('Content-Disposition'):
+            parts = l.split('"')
+            k = parts[1]
+        elif l.startswith('--'):
+            pass
+        elif l == '':
+            pass
+        else:
+            v = l
+            if k is not None and v is not None:
+                res[k] = v
+    return res
+
+
+def listify(d):
+    l = [None] * len(d)
+    for k, v in d.iteritems():
+        l[k] = v
+    return l
+
+
+def make_section(s):
+    artist_name = s['artist']
+    slug = mixcloud.slugify(artist_name)
+    artist = mixcloud.Artist(slug, artist_name)
+    track = mixcloud.Track(s['song'], artist)
+    sec = mixcloud.Section(int(s['start_time']), track)
+    return sec
+
+
+def parse_headers(data):
+    sections = {}
+    tags = {}
+    for k, v in data.iteritems():
+        if k.startswith('sections-'):
+            parts = k.split('-')
+            secnum = int(parts[1])
+            what = parts[2]
+            if secnum not in sections:
+                sections[secnum] = {}
+            sections[secnum][what] = v
+        if k.startswith('tags-'):
+            parts = k.split('-')
+            tagnum = int(parts[1])
+            tags[tagnum] = v
+
+    seclist = [make_section(s) for s in listify(sections)]
+    taglist = listify(tags)
+    return seclist, taglist

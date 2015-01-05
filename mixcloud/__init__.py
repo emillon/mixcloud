@@ -3,6 +3,7 @@ import dateutil.parser
 import re
 import requests
 import unidecode
+import yaml
 
 
 class Mixcloud(object):
@@ -47,12 +48,21 @@ class Mixcloud(object):
                           )
         return r
 
+    def upload_yml_file(self, ymlfile, mp3file):
+        user = self.me()
+        cloudcast = Cloudcast.from_yml(ymlfile, user)
+        r = self.upload(cloudcast, mp3file)
+
 
 class Artist(collections.namedtuple('_Artist', 'key name')):
 
     @staticmethod
     def from_json(data):
         return Artist(data['slug'], data['name'])
+
+    @staticmethod
+    def from_yml(artist):
+        return Artist(slugify(artist), artist)
 
 
 class User(object):
@@ -146,6 +156,19 @@ class Cloudcast(object):
             self._load()
         return self._description
 
+    @staticmethod
+    def from_yml(f, user):
+        d = yaml.load(f)
+        name = d['title']
+        sections = [Section.from_yml(s) for s in d['tracks']]
+        key = slugify(name)
+        tags = d['tags']
+        description = d['desc']
+        created_time = None
+        c = Cloudcast(key, name, sections, tags, description,
+                      user, created_time)
+        return c
+
 
 class Section(collections.namedtuple('_Section', 'start_time track')):
 
@@ -156,6 +179,12 @@ class Section(collections.namedtuple('_Section', 'start_time track')):
     @staticmethod
     def list_from_json(d):
         return [Section.from_json(s) for s in d]
+
+    @staticmethod
+    def from_yml(d):
+        artist = Artist.from_yml(d['artist'])
+        track = d['track']
+        return Section(d['start'], Track(track, artist))
 
 
 class Track(collections.namedtuple('_Track', 'name artist')):
