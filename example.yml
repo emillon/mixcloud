@@ -2,10 +2,10 @@ title: Sample & Funky
 desc: Artists love sampling other tracks.
       In this mix we jump from one track to another through a sample in common.
 tags:
- - Sample chain
- - Samples
- - Hip hop
- - Pop
+  - Sample chain
+  - Samples
+  - Hip hop
+  - Pop
 tracks:
   - start: 0
     artist: Bel-Sha-Zaar
