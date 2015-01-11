@@ -60,7 +60,7 @@ It is possible to parse such a file with:
 ```python
 with open(yml_path) as yml:
     cc = mixcloud.Cloudcast.from_yml(yml, None)
-``̀`
+```
 
 Mocking
 -------
