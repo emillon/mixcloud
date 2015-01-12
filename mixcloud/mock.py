@@ -158,7 +158,7 @@ def parse_multipart(d):
 
 def listify(d):
     l = [None] * len(d)
-    for k, v in d.iteritems():
+    for k, v in d.items():
         l[k] = v
     return l
 
@@ -175,7 +175,7 @@ def make_section(s):
 def parse_headers(data):
     sections = {}
     tags = {}
-    for k, v in data.iteritems():
+    for k, v in data.items():
         if k.startswith('sections-'):
             parts = k.split('-')
             secnum = int(parts[1])
