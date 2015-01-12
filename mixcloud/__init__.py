@@ -6,6 +6,16 @@ import unidecode
 import yaml
 
 
+def setup_yaml():
+    def construct_yaml_str(self, node):
+        # Override the default string handling function
+        # to always return unicode objects
+        return self.construct_scalar(node)
+    tag = u'tag:yaml.org,2002:str'
+    yaml.Loader.add_constructor(tag, construct_yaml_str)
+    yaml.SafeLoader.add_constructor(tag, construct_yaml_str)
+
+
 class Mixcloud(object):
 
     def __init__(self, api_root='https://api.mixcloud.com', access_token=None):
@@ -158,6 +168,7 @@ class Cloudcast(object):
 
     @staticmethod
     def from_yml(f, user):
+        setup_yaml()
         d = yaml.load(f)
         name = d['title']
         sections = [Section.from_yml(s) for s in d['tracks']]
@@ -195,7 +206,5 @@ class Track(collections.namedtuple('_Track', 'name artist')):
 
 
 def slugify(s):
-    if type(s) == str:
-        s = unicode(s)
     s = unidecode.unidecode(s).lower()
     return re.sub(r'\W+', '-', s)

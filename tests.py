@@ -4,7 +4,7 @@ import dateutil.tz
 import httpretty
 import json
 import mixcloud
-import StringIO
+import io
 import unittest
 from mixcloud.mock import MockServer, parse_headers, parse_multipart
 
@@ -99,7 +99,7 @@ class TestMixcloud(unittest.TestCase):
         self.assertEqual(sec.start_time, 416)
         self.assertEqual(sec.track.name, 'Refresher')
         self.assertEqual(sec.track.artist.name, 'Time of your life')
-        self.assertItemsEqual(cc.tags, ['Funky house', 'Funk', 'Soul'])
+        self.assertEqual(cc.tags, ['Funky house', 'Funk', 'Soul'])
         self.assertEqual(cc.description(), 'Bla bla')
         self.assertEqual(cc.user.key, 'spartacus')
         self.assertEqual(cc.user.name, 'Spartacus')
@@ -136,7 +136,7 @@ class TestMixcloud(unittest.TestCase):
             return (200, headers, '{}')
 
         self.mc.handle_upload(upload_callback)
-        mp3file = StringIO.StringIO('\x00' * 30)
+        mp3file = io.StringIO(u'\x00' * 30)
         r = self.m.upload(partytime, mp3file)
         self.assertEqual(r.status_code, 200)
         me = self.m.me()
@@ -148,7 +148,7 @@ class TestMixcloud(unittest.TestCase):
         self.assertEqual(sec.start_time, 1061)
         self.assertEqual(sec.track.name, 'Definition of House')
         self.assertEqual(sec.track.artist.name, 'Minimal Funk')
-        self.assertItemsEqual(cc.tags, ['Funky house', 'Funk', 'Soul'])
+        self.assertEqual(cc.tags, ['Funky house', 'Funk', 'Soul'])
         self.assertEqual(cc.description(), 'Bla bla')
 
     def testCloudcastsSection(self):
@@ -181,7 +181,7 @@ class TestMixcloud(unittest.TestCase):
     def testYaml(self):
         self.mc.i_am(spartacus)
         self.mc.mock_upload(self.m.me())
-        mp3file = StringIO.StringIO('\x00' * 30)
+        mp3file = io.StringIO(u'\x00' * 30)
         with open('example.yml') as f:
             self.m.upload_yml_file(f, mp3file)
         u = self.m.user('spartacus')

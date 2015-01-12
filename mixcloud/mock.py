@@ -2,7 +2,10 @@ import datetime
 import httpretty
 import json
 import mixcloud
-import urlparse
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 
 
 class MockServer:
@@ -130,29 +133,32 @@ class MockServer:
 
 
 def parse_multipart(d):
-    lines = d.split('\n')
+    lines = d.split(b'\n')
     k = None
     v = None
     res = {}
     for l in lines:
         l = l.strip()
-        if l.startswith('Content-Disposition'):
-            parts = l.split('"')
+        if l.startswith(b'Content-Disposition'):
+            parts = l.split(b'"')
             k = parts[1]
-        elif l.startswith('--'):
+        elif l.startswith(b'--'):
             pass
         elif l == '':
             pass
         else:
             v = l
             if k is not None and v is not None:
+                if type(k) == bytes:
+                    k = k.decode('utf-8')
+                v = v.decode('utf-8')
                 res[k] = v
     return res
 
 
 def listify(d):
     l = [None] * len(d)
-    for k, v in d.iteritems():
+    for k, v in d.items():
         l[k] = v
     return l
 
@@ -169,7 +175,7 @@ def make_section(s):
 def parse_headers(data):
     sections = {}
     tags = {}
-    for k, v in data.iteritems():
+    for k, v in data.items():
         if k.startswith('sections-'):
             parts = k.split('-')
             secnum = int(parts[1])
