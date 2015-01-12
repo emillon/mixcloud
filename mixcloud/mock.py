@@ -149,7 +149,7 @@ def parse_multipart(d):
         else:
             v = l
             if k is not None and v is not None:
-                res[k] = v
+                res[k] = v.decode('utf-8')
     return res
 
 
