@@ -99,7 +99,7 @@ class TestMixcloud(unittest.TestCase):
         self.assertEqual(sec.start_time, 416)
         self.assertEqual(sec.track.name, 'Refresher')
         self.assertEqual(sec.track.artist.name, 'Time of your life')
-        self.assertItemsEqual(cc.tags, ['Funky house', 'Funk', 'Soul'])
+        self.assertEqual(cc.tags, ['Funky house', 'Funk', 'Soul'])
         self.assertEqual(cc.description(), 'Bla bla')
         self.assertEqual(cc.user.key, 'spartacus')
         self.assertEqual(cc.user.name, 'Spartacus')
