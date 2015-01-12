@@ -148,7 +148,7 @@ class TestMixcloud(unittest.TestCase):
         self.assertEqual(sec.start_time, 1061)
         self.assertEqual(sec.track.name, 'Definition of House')
         self.assertEqual(sec.track.artist.name, 'Minimal Funk')
-        self.assertItemsEqual(cc.tags, ['Funky house', 'Funk', 'Soul'])
+        self.assertEqual(cc.tags, ['Funky house', 'Funk', 'Soul'])
         self.assertEqual(cc.description(), 'Bla bla')
 
     def testCloudcastsSection(self):
