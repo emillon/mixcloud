@@ -3,8 +3,12 @@ install:
   - "pip install -r requirements.txt --use-mirrors"
   - "pip install -r requirements-dev.txt --use-mirrors"
   - "pip install coveralls --use-mirrors"
-python:
-  - "2.7"
+matrix:
+  include:
+    - python: 2.7
+    - python: 3.4
+  allow_failures:
+    - python: 3.4
 script: "nosetests --with-coverage --cover-package=mixcloud"
 after_success:
   coveralls
