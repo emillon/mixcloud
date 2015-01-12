@@ -136,7 +136,7 @@ class TestMixcloud(unittest.TestCase):
             return (200, headers, '{}')
 
         self.mc.handle_upload(upload_callback)
-        mp3file = io.StringIO('\x00' * 30)
+        mp3file = io.StringIO(u'\x00' * 30)
         r = self.m.upload(partytime, mp3file)
         self.assertEqual(r.status_code, 200)
         me = self.m.me()
@@ -181,7 +181,7 @@ class TestMixcloud(unittest.TestCase):
     def testYaml(self):
         self.mc.i_am(spartacus)
         self.mc.mock_upload(self.m.me())
-        mp3file = io.StringIO('\x00' * 30)
+        mp3file = io.StringIO(u'\x00' * 30)
         with open('example.yml') as f:
             self.m.upload_yml_file(f, mp3file)
         u = self.m.user('spartacus')
