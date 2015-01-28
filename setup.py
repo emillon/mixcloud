@@ -10,7 +10,7 @@ with open('HISTORY.rst') as f:
     history = f.read()
 
 setuptools.setup(name='mixcloud',
-                 version='0.0+dev',
+                 version='0.0.1',
                  author='Etienne Millon',
                  author_email='me@emillon.org',
                  url="https://github.com/emillon/mixcloud",
@@ -20,7 +20,7 @@ setuptools.setup(name='mixcloud',
                  description='Bindings for the mixcloud.com API',
                  long_description=readme + '\n\n' + history,
                  classifiers=[
-                     'Development Status :: 3 - Alpha'
+                     'Development Status :: 3 - Alpha',
                      'Intended Audience :: Developers',
                      'License :: OSI Approved :: BSD License',
                      'Operating System :: OS Independent',
