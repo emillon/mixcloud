@@ -77,7 +77,7 @@ Mocking
 
 A mock server is provided for testing purposes in ``mixcloud.mock``.
 
-.. |Build Status| image:: https://secure.travis-ci.org/emillon/mixcloud.png
+.. |Build Status| image:: https://img.shields.io/travis/emillon/mixcloud/master.svg
    :target: http://travis-ci.org/emillon/mixcloud
-.. |Coverage Status| image:: https://coveralls.io/repos/emillon/mixcloud/badge.png
+.. |Coverage Status| image:: https://img.shields.io/coveralls/emillon/mixcloud/master.svg
    :target: https://coveralls.io/r/emillon/mixcloud
