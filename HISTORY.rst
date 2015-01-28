@@ -4,7 +4,7 @@ Changelog
 0.0.2
 -----
 
-* Switch from requirements.txt to install_requires
+* Switch from requirements.txt to install_requires (#7)
 * Add HISTORY.rst to MANIFEST.in
 
 0.0.1
