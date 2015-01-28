@@ -1,8 +1,6 @@
 from pip.req import parse_requirements
 import setuptools
 
-reqs = [str(ir.req) for ir in parse_requirements('requirements.txt')]
-
 with open('README.rst') as f:
     readme = f.read()
 
@@ -16,7 +14,12 @@ setuptools.setup(name='mixcloud',
                  url="https://github.com/emillon/mixcloud",
                  license='BSD',
                  packages=['mixcloud'],
-                 install_requires=reqs,
+                 install_requires=[
+                     'python-dateutil',
+                     'requests',
+                     'unidecode',
+                     'pyyaml',
+                 ],
                  description='Bindings for the mixcloud.com API',
                  long_description=readme + '\n\n' + history,
                  classifiers=[
