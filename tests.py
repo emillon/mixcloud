@@ -69,14 +69,14 @@ lambiance = mixcloud.Cloudcast(
 
 class TestMixcloud(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        httpretty.enable()
+
     def setUp(self):
         self.m = mixcloud.Mixcloud()
         httpretty.reset()
-        httpretty.enable()
         self.mc = MockServer()
-
-    def tearDown(self):
-        httpretty.disable()
 
     def testArtist(self):
         self.mc.register_artist(afx)
