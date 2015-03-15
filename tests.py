@@ -69,14 +69,14 @@ lambiance = mixcloud.Cloudcast(
 
 class TestMixcloud(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        httpretty.enable()
+
     def setUp(self):
         self.m = mixcloud.Mixcloud()
         httpretty.reset()
-        httpretty.enable()
         self.mc = MockServer()
-
-    def tearDown(self):
-        httpretty.disable()
 
     def testArtist(self):
         self.mc.register_artist(afx)
@@ -101,6 +101,7 @@ class TestMixcloud(unittest.TestCase):
         self.assertEqual(sec.track.artist.name, 'Time of your life')
         self.assertEqual(cc.tags, ['Funky house', 'Funk', 'Soul'])
         self.assertEqual(cc.description(), 'Bla bla')
+        self.assertTrue(cc.picture().startswith('http'))
         self.assertEqual(cc.user.key, 'spartacus')
         self.assertEqual(cc.user.name, 'Spartacus')
 
@@ -124,6 +125,7 @@ class TestMixcloud(unittest.TestCase):
         def upload_callback(request, uri, headers):
             data = parse_multipart(request.body)
             self.assertIn('mp3', data)
+            self.assertIn('picture', data)
             name = data['name']
             key = mixcloud.slugify(name)
             sections, tags = parse_headers(data)
@@ -137,7 +139,8 @@ class TestMixcloud(unittest.TestCase):
 
         self.mc.handle_upload(upload_callback)
         mp3file = io.StringIO(u'\x00' * 30)
-        r = self.m.upload(partytime, mp3file)
+        picturefile = io.StringIO(u'\x00' * 30)
+        r = self.m.upload(partytime, mp3file, picturefile=picturefile)
         self.assertEqual(r.status_code, 200)
         me = self.m.me()
         cc = me.cloudcast('party-time')

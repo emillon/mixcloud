@@ -37,7 +37,7 @@ class Mixcloud(object):
         r = requests.get(url)
         return User.from_json(r.json(), m=self)
 
-    def upload(self, cloudcast, mp3file):
+    def upload(self, cloudcast, mp3file, picturefile=None):
         url = '{root}/upload/'.format(root=self.api_root)
         payload = {'name': cloudcast.name,
                    'percentage_music': 100,
@@ -51,10 +51,14 @@ class Mixcloud(object):
         for num, tag in enumerate(cloudcast.tags):
             payload['tags-%s-tag' % num] = tag
 
+        files = {'mp3': mp3file}
+        if picturefile is not None:
+            files['picture'] = picturefile
+
         r = requests.post(url,
                           data=payload,
                           params={'access_token': self.access_token},
-                          files={'mp3': mp3file},
+                          files=files,
                           )
         return r
 
@@ -110,7 +114,7 @@ class User(object):
 class Cloudcast(object):
 
     def __init__(self, key, name, sections, tags,
-                 description, user, created_time, m=None):
+                 description, user, created_time, pictures=None, m=None):
         self.key = key
         self.name = name
         self.tags = tags
@@ -119,6 +123,7 @@ class Cloudcast(object):
         self.user = user
         self.created_time = created_time
         self.m = m
+        self.pictures = pictures
 
     @staticmethod
     def from_json(d, m=None):
@@ -137,6 +142,7 @@ class Cloudcast(object):
                          desc,
                          user,
                          created_time,
+                         pictures=d.get('pictures'),
                          m=m,
                          )
 
@@ -165,6 +171,9 @@ class Cloudcast(object):
         if self._description is None:
             self._load()
         return self._description
+
+    def picture(self):
+        return self.pictures['large']
 
     @staticmethod
     def from_yml(f, user):
