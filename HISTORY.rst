@@ -3,6 +3,8 @@ Changelog
 
 0.0.3
 -----
+**release date:** 2015-03-15
+
 * Pictures can be uploaded and retrieved (#6)
 * Include LICENSE in tarball (#8)
 
