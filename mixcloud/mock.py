@@ -66,6 +66,9 @@ class MockServer:
                             'name': user.name,
                             },
                    'created_time': cloudcast.created_time.isoformat(),
+                   'pictures': {
+                       'large': 'http://httpbin.org/status/418',
+                       }
                    }
         httpretty.register_uri(httpretty.GET, url, body=json.dumps(cc_data))
         return cc_data

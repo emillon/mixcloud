@@ -3,6 +3,7 @@ Changelog
 
 0.0.3
 -----
+* Pictures can be uploaded and retrieved (#6)
 
 0.0.2
 -----
