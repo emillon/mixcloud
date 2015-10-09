@@ -34,7 +34,7 @@ class Mixcloud(object):
 
     def me(self):
         url = '{root}/me/'.format(root=self.api_root)
-        r = requests.get(url)
+        r = requests.get(url, {'access_token': self.access_token})
         return User.from_json(r.json(), m=self)
 
     def upload(self, cloudcast, mp3file, picturefile=None):
