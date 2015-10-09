@@ -35,7 +35,7 @@ Authorization is a multi-step process:
         client_id=client_id, client_secret=client_secret,
         redirect_uri=redirect_uri)
 
-    url = o.authorise_url()
+    url = o.authorize_url()
 
     # Next redirect the user to `url`. They will be redirected to your
     # redirect uri with a `code` query string parameter. This must be
