@@ -5,12 +5,11 @@ import requests
 import unidecode
 import yaml
 
-# Workaround to support both python 2 & 3
 try:
-    import urllib.request, urllib.error
-    import urllib.parse as urllibparse
+    from urllib import urlencode
 except ImportError:
-    import urllib as urllibparse
+    # Python 2 fallback.
+    from urllib.parse import urlencode
 
 
 API_ROOT = 'https://api.mixcloud.com'
@@ -50,7 +49,7 @@ class MixcloudOauth(object):
             'client_id': self.client_id,
             'redirect_uri': self.redirect_uri,
         }
-        return "{}?{}".format(auth_url, urllibparse.urlencode(params))
+        return "{}?{}".format(auth_url, urlencode(params))
 
     def exchange_token(self, code):
         """

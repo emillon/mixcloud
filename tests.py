@@ -8,6 +8,16 @@ import io
 import unittest
 from mixcloud.mock import MockServer, parse_headers, parse_multipart
 
+try:
+    from urllib.parse import parse_qs
+    from urllib.parse import urlsplit
+    from urllib.parse import urlencode
+except ImportError:
+    # Python 2 fallback.
+    from urlparse import parse_qs
+    from urlparse import urlsplit
+    from urllib import urlencode
+
 
 def parse_tracklist(s):
     s = s.split('\n')[1:-1]
@@ -74,6 +84,12 @@ class TestMixcloud(unittest.TestCase):
         httpretty.enable()
 
     def setUp(self):
+        self.client_id = 'qwerty'
+        self.client_secret = 'ytrewq'
+        self.redirect_uri = 'http://localhost/mixcloud-callback'
+        self.o = mixcloud.MixcloudOauth(
+            client_id=self.client_id, client_secret=self.client_secret,
+            redirect_uri=self.redirect_uri)
         self.m = mixcloud.Mixcloud()
         httpretty.reset()
         self.mc = MockServer()
@@ -200,3 +216,14 @@ class TestMixcloud(unittest.TestCase):
         tags = ['Sample chain', 'Samples', 'Hip hop', 'Pop']
         self.assertEqual(cc.tags, tags)
         self.assertIn("In this mix we jump", cc.description())
+
+    def testOauthUrl(self):
+        full_url = self.o.authorize_url()
+        # Check URL without parameters.
+        self.assertEqual(
+            full_url.split('?')[0], mixcloud.OAUTH_ROOT + '/authorize')
+        # Check query string parameters
+        u = urlsplit(full_url)
+        params = parse_qs(u.query)
+        self.assertEqual(params['client_id'][0], self.client_id)
+        self.assertEqual(params['redirect_uri'][0], self.redirect_uri)
