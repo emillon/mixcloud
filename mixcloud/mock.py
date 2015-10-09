@@ -10,10 +10,13 @@ except ImportError:
 
 class MockServer:
 
-    def __init__(self, api_root=None):
+    def __init__(self, api_root=None, oauth_root=None):
         if api_root is None:
-            api_root = 'https://api.mixcloud.com'
+            api_root = mixcloud.API_ROOT
         self.api_root = api_root
+        if oauth_root is None:
+            oauth_root = mixcloud.OAUTH_ROOT
+        self.oauth_root = oauth_root
 
     def i_am(self, user):
         assert httpretty.is_enabled()
@@ -133,6 +136,15 @@ class MockServer:
             self.register_cloudcast(user, cc)
             return (200, headers, '{}')
         self.handle_upload(mock_upload)
+
+    def oauth_exchange(self):
+        assert httpretty.is_enabled()
+        target_url = '{root}/{endpoint}'.format(root=self.oauth_root,
+                                                endpoint='access_token')
+        data = {"access_token": "my_access_token"}
+        httpretty.register_uri(httpretty.GET,
+                               target_url,
+                               body=json.dumps(data))
 
 
 def parse_multipart(d):

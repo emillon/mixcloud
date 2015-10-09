@@ -2,7 +2,6 @@ import csv
 import datetime
 import dateutil.tz
 import httpretty
-import json
 import mixcloud
 import io
 import unittest
@@ -222,8 +221,13 @@ class TestMixcloud(unittest.TestCase):
         # Check URL without parameters.
         self.assertEqual(
             full_url.split('?')[0], mixcloud.OAUTH_ROOT + '/authorize')
-        # Check query string parameters
+        # Check query string parameters.
         u = urlsplit(full_url)
         params = parse_qs(u.query)
         self.assertEqual(params['client_id'][0], self.client_id)
         self.assertEqual(params['redirect_uri'][0], self.redirect_uri)
+
+    def testOauthExchange(self):
+        self.mc.oauth_exchange()
+        access_token = self.o.exchange_token('my_code')
+        self.assertEqual(access_token, 'my_access_token')
