@@ -231,3 +231,8 @@ class TestMixcloud(unittest.TestCase):
         self.mc.oauth_exchange()
         access_token = self.o.exchange_token('my_code')
         self.assertEqual(access_token, 'my_access_token')
+
+    def testOauthExchangeServerFail(self):
+        self.mc.oauth_exchange_fail()
+        with self.assertRaises(mixcloud.MixcloudOauthError):
+            self.o.exchange_token('my_code')
