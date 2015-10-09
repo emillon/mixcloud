@@ -16,6 +16,38 @@ Example
     for c in u.cloudcasts():
         print c.name
 
+Authorization
+-------------
+
+You must have an application registered with Mixcloud and a corresponding
+client ID and secret.
+
+Authorization is a multi-step process:
+
+1. Generate the authorization URL
+2. Redirect the user to the URL to authorize your application
+3. Collect the `code` query string parameter from the redirect
+4. Exchange the code for an access token
+
+.. code:: python
+
+    o = mixcloud.MixcloudOauth(
+        client_id=client_id, client_secret=client_secret,
+        redirect_uri=redirect_uri)
+
+    url = o.authorise_url()
+
+    # Next redirect the user to `url`. They will be redirected to your
+    # redirect uri with a `code` query string parameter. This must be
+    # exchanged with Mixcloud for an access token.
+
+    access_token = o.exchange_token(code)
+
+    # This can then be used for calls that required authorization.
+
+    m = mixcloud.Mixcloud(access_token=access_token)
+    print(m.me())
+
 Uploading
 ---------
 
@@ -25,7 +57,7 @@ the constructor.
 
 .. code:: python
 
-    m = mixcloud.Mixcloud(access_token=acces_token)
+    m = mixcloud.Mixcloud(access_token=access_token)
     cc = Cloudcast(...)
     with open(mp3_path) as mp3:
         r = m.upload(cc, mp3)
