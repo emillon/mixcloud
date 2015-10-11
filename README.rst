@@ -48,6 +48,14 @@ Authorization is a multi-step process:
     m = mixcloud.Mixcloud(access_token=access_token)
     print(m.me())
 
+Optionally you can store an access token in your `.netrc` file and it
+will be used automatically. The machine name must be `mixcloud-api`.
+
+E.g.::
+
+    machine mixcloud-api
+    password my_access_token
+
 Uploading
 ---------
 

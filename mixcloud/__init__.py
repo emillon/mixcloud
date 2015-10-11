@@ -1,5 +1,6 @@
 import collections
 import dateutil.parser
+import netrc
 import re
 import requests
 import unidecode
@@ -12,6 +13,7 @@ except ImportError:
     from urllib.parse import urlencode
 
 
+NETRC_MACHINE = 'mixcloud-api'
 API_ROOT = 'https://api.mixcloud.com'
 OAUTH_ROOT = 'https://www.mixcloud.com/oauth'
 
@@ -72,6 +74,11 @@ class Mixcloud(object):
 
     def __init__(self, api_root=API_ROOT, access_token=None):
         self.api_root = api_root
+        if access_token is None:
+            # Attempt netrc lookup.
+            netrc_auth = netrc.netrc().authenticators(NETRC_MACHINE)
+            if netrc_auth:
+                access_token = netrc_auth[2]
         self.access_token = access_token
 
     def artist(self, key):
