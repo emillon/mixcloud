@@ -3,7 +3,6 @@ import datetime
 import dateutil.tz
 import httpretty
 import mixcloud
-import netrc
 import io
 import unittest
 from mixcloud.mock import MockServer, parse_headers, parse_multipart
@@ -238,9 +237,11 @@ class TestMixcloud(unittest.TestCase):
         with self.assertRaises(mixcloud.MixcloudOauthError):
             self.o.exchange_token('my_code')
 
-    def testNetrc(self):
-        ret_value = ('', None, 'my_access_token')
-        with mock.patch.object(netrc.netrc, 'authenticators',
-                               return_value=ret_value):
-            m = mixcloud.Mixcloud()
-            self.assertEqual(m.access_token, ret_value[2])
+    @mock.patch('netrc.netrc.authenticators')
+    @mock.patch('netrc.netrc.__init__')
+    def testNetrc(self, netrc_init, netrc_authenticators):
+        netrc_init.return_value = None  # Don't blow up when netrc missing.
+        netrc_authenticators.return_value = ('', None, 'my_access_token')
+
+        m = mixcloud.Mixcloud()
+        self.assertEqual(m.access_token, 'my_access_token')
