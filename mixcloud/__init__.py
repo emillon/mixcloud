@@ -5,6 +5,20 @@ import requests
 import unidecode
 import yaml
 
+try:
+    from urllib import urlencode
+except ImportError:
+    # Python 2 fallback.
+    from urllib.parse import urlencode
+
+
+API_ROOT = 'https://api.mixcloud.com'
+OAUTH_ROOT = 'https://www.mixcloud.com/oauth'
+
+
+class MixcloudOauthError(Exception):
+    pass
+
 
 def setup_yaml():
     def construct_yaml_str(self, node):
@@ -16,9 +30,47 @@ def setup_yaml():
     yaml.SafeLoader.add_constructor(tag, construct_yaml_str)
 
 
+class MixcloudOauth(object):
+    """
+    Assists in the OAuth dance with Mixcloud to get an access token.
+    """
+
+    def __init__(self, client_id=None, client_secret=None, redirect_uri=None):
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.redirect_uri = redirect_uri
+
+    def authorize_url(self):
+        """
+        Return a URL to redirect the user to for OAuth authentication.
+        """
+        auth_url = OAUTH_ROOT + '/authorize'
+        params = {
+            'client_id': self.client_id,
+            'redirect_uri': self.redirect_uri,
+        }
+        return "{}?{}".format(auth_url, urlencode(params))
+
+    def exchange_token(self, code):
+        """
+        Exchange the authorization code for an access token.
+        """
+        access_token_url = OAUTH_ROOT + '/access_token'
+        params = {
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
+            'redirect_uri': self.redirect_uri,
+            'code': code,
+        }
+        resp = requests.get(access_token_url, params=params)
+        if not resp.ok:
+            raise MixcloudOauthError("Could not get access token.")
+        return resp.json()['access_token']
+
+
 class Mixcloud(object):
 
-    def __init__(self, api_root='https://api.mixcloud.com', access_token=None):
+    def __init__(self, api_root=API_ROOT, access_token=None):
         self.api_root = api_root
         self.access_token = access_token
 
@@ -34,7 +86,7 @@ class Mixcloud(object):
 
     def me(self):
         url = '{root}/me/'.format(root=self.api_root)
-        r = requests.get(url)
+        r = requests.get(url, {'access_token': self.access_token})
         return User.from_json(r.json(), m=self)
 
     def upload(self, cloudcast, mp3file, picturefile=None):
