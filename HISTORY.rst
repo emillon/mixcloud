@@ -1,6 +1,9 @@
 Changelog
 =========
 
+unreleased
+----------
+
 0.4.0
 -----
 **release date:** 2015-10-27

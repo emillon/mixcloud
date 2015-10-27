@@ -8,7 +8,7 @@ with open('HISTORY.rst') as f:
     history = f.read()
 
 setuptools.setup(name='mixcloud',
-                 version='0.4.0',
+                 version='0.4.0+dev',
                  author='Etienne Millon',
                  author_email='me@emillon.org',
                  url="https://github.com/emillon/mixcloud",
