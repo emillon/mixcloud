@@ -6,6 +6,7 @@ unreleased
 
 * Include access token when calling /me (#10)
 * Add a helper class for OAuth (#11)
+* Support access token stored in netrc (#9, #12)
 
 0.0.3
 -----
