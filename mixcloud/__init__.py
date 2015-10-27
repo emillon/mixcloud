@@ -1,17 +1,20 @@
 import collections
 import dateutil.parser
+import netrc
 import re
 import requests
 import unidecode
 import yaml
 
 try:
-    from urllib import urlencode
+    from urllib.parse import urlencode
 except ImportError:
     # Python 2 fallback.
-    from urllib.parse import urlencode
+    from urllib import urlencode
+    FileNotFoundError = IOError
 
 
+NETRC_MACHINE = 'mixcloud-api'
 API_ROOT = 'https://api.mixcloud.com'
 OAUTH_ROOT = 'https://www.mixcloud.com/oauth'
 
@@ -72,6 +75,23 @@ class Mixcloud(object):
 
     def __init__(self, api_root=API_ROOT, access_token=None):
         self.api_root = api_root
+        if access_token is None:
+            try:
+                # Check there is a netrc file.
+                netrc_auth = netrc.netrc()
+            except FileNotFoundError:
+                pass
+            else:
+                try:
+                    # Attempt netrc lookup.
+                    credentials = netrc_auth.authenticators(NETRC_MACHINE)
+                    if netrc_auth:
+                        access_token = credentials[2]
+                except netrc.NetrcParseError:
+                    # Configuration errors unrelated to the Mixcloud entry
+                    # will cause this exception to be thrown, whether or not
+                    # there is a Mixcloud entry.
+                    pass
         self.access_token = access_token
 
     def artist(self, key):

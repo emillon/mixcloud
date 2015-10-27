@@ -10,12 +10,12 @@ from mixcloud.mock import MockServer, parse_headers, parse_multipart
 try:
     from urllib.parse import parse_qs
     from urllib.parse import urlsplit
-    from urllib.parse import urlencode
+    from unittest import mock
 except ImportError:
     # Python 2 fallback.
     from urlparse import parse_qs
     from urlparse import urlsplit
-    from urllib import urlencode
+    import mock
 
 
 def parse_tracklist(s):
@@ -236,3 +236,12 @@ class TestMixcloud(unittest.TestCase):
         self.mc.oauth_exchange_fail()
         with self.assertRaises(mixcloud.MixcloudOauthError):
             self.o.exchange_token('my_code')
+
+    @mock.patch('netrc.netrc.authenticators')
+    @mock.patch('netrc.netrc.__init__')
+    def testNetrc(self, netrc_init, netrc_authenticators):
+        netrc_init.return_value = None  # Don't blow up when netrc missing.
+        netrc_authenticators.return_value = ('', None, 'my_access_token')
+
+        m = mixcloud.Mixcloud()
+        self.assertEqual(m.access_token, 'my_access_token')

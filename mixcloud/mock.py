@@ -150,7 +150,6 @@ class MockServer:
         assert httpretty.is_enabled()
         target_url = '{root}/{endpoint}'.format(root=self.oauth_root,
                                                 endpoint='access_token')
-        print(target_url)
         httpretty.register_uri(httpretty.GET, target_url, status=500)
 
 
