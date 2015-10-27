@@ -1,8 +1,11 @@
 Changelog
 =========
 
-0.0.4
------
+unreleased
+----------
+
+* Include access token when calling /me (#10)
+* Add a helper class for OAuth (#11)
 
 0.0.3
 -----
