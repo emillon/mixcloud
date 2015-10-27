@@ -1,9 +1,11 @@
 Changelog
 =========
 
-unreleased
-----------
+0.4.0
+-----
+**release date:** 2015-10-27
 
+* Switch to semantic versioning.
 * Include access token when calling /me (#10)
 * Add a helper class for OAuth (#11)
 * Support access token stored in netrc (#9, #12)
