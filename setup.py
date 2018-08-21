@@ -1,4 +1,3 @@
-from pip.req import parse_requirements
 import setuptools
 
 with open('README.rst') as f:
@@ -19,6 +18,9 @@ setuptools.setup(name='mixcloud',
                      'requests',
                      'unidecode',
                      'pyyaml',
+                     'httpretty',
+                     'nose',
+                     'mock'
                  ],
                  description='Bindings for the mixcloud.com API',
                  long_description=readme + '\n\n' + history,
